@@ -9,9 +9,12 @@
     "node": ">=18.x"
   },
   "scripts": {
-    "start": "node app.js",
+    "start": "node welcome-bot.js",
+    "interactions": "node app.js",
     "register": "node commands.js",
-    "dev": "nodemon app.js"
+    "dev": "nodemon app.js",
+    "welcome": "node welcome-bot.js",
+    "welcome:dev": "nodemon --watch . --ext js --exec \"node welcome-bot.js\""
   },
   "author": "Shay DeWael",
   "license": "MIT",
