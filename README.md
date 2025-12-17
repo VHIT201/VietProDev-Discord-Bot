@@ -1,53 +1,225 @@
-# Getting Started app for Discord
+# VietProDev Discord Bot - Enterprise Edition 🚀
 
-This project contains a basic rock-paper-scissors-style Discord app written in JavaScript, built for the [getting started guide](https://discord.com/developers/docs/getting-started).
+Bot Discord chuyên nghiệp cho quản lý công ty VietProDev, được xây dựng với kiến trúc Monolithic Handler chuẩn Enterprise.
 
-![Demo of app](https://github.com/discord/discord-example-app/raw/main/assets/getting-started-demo.gif?raw=true)
+## ✨ Tính năng
 
-## Project structure
-Below is a basic overview of the project structure:
+### 🎮 Giải trí & Game
+- `/rps` - Chơi Kéo-Búa-Bao với bot (7 lựa chọn)
+- `/ansang` - Gợi ý món ăn sáng ngẫu nhiên
+- `/antrua` - Gợi ý món ăn trưa
+- `/uonggi` - Gợi ý đồ uống
+
+### 🛠️ Tiện ích
+- `/ping` - Kiểm tra độ trễ bot
+- `/help` - Hiển thị danh sách lệnh
+- `/weather [city]` - Xem thời tiết
+
+### 🎉 Tự động
+- **Welcome System**: Chào mừng thành viên mới với embed đẹp + ảnh tùy chỉnh
+- **Message Commands**: Hỗ trợ legacy commands (`!temp`, `!ansang`, etc.)
+
+### 💾 Database (MongoDB)
+- Lưu thông tin nhân viên (User model)
+- Tracking stats game (điểm, level, thắng/thua)
+- Hệ thống ticket support (Ticket model)
+
+## 📂 Cấu trúc dự án
 
 ```
-├── examples    -> short, feature-specific sample apps
-│   ├── app.js  -> finished app.js code
-│   ├── button.js
-│   ├── command.js
-│   ├── modal.js
-│   ├── selectMenu.js
-├── .env.sample -> sample .env file
-├── app.js      -> main entrypoint for app
-├── commands.js -> slash command payloads + helpers
-├── game.js     -> logic specific to RPS
-├── utils.js    -> utility functions and enums
+vietprodev-bot/
+├── src/
+│   ├── index.js              # Entry point
+│   ├── configs/
+│   │   └── config.js         # Cấu hình tĩnh (colors, IDs, messages)
+│   ├── database/
+│   │   ├── connect.js
+│   │   └── models/
+│   │       ├── User.js
+│   │       └── Ticket.js
+│   ├── handlers/             # Auto-loaders
+│   │   ├── commandHandler.js
+│   │   ├── eventHandler.js
+│   │   └── componentHandler.js
+│   ├── utils/
+│   │   ├── logger.js         # Logger với màu sắc đẹp
+│   │   └── fileLoader.js     # Đọc file đệ quy
+│   ├── commands/
+│   │   ├── utility/          # ping, help, weather
+│   │   ├── fun/              # rps, ansang, antrua, uonggi
+│   │   ├── admin/            # (Dự định: setup, clear)
+│   │   └── hr/               # (Dự định: onboard, nghiphep)
+│   ├── events/
+│   │   ├── client/           # ready, interactionCreate, messageCreate
+│   │   └── guild/            # guildMemberAdd
+│   └── components/
+│       ├── buttons/
+│       ├── selectMenus/      # rps_select
+│       └── modals/
+├── assets/
+│   └── images/
+│       └── welcome-card.png  # Ảnh welcome (nếu có)
+├── .env                      # Biến môi trường (KHÔNG commit)
+├── .env.example
 ├── package.json
-├── README.md
-└── .gitignore
+└── README.md
 ```
 
-## Running app locally
+## 🚀 Cài đặt
 
-Before you start, you'll need to install [NodeJS](https://nodejs.org/en/download/) and [create a Discord app](https://discord.com/developers/applications) with the proper permissions:
-- `applications.commands`
-- `bot` (with Send Messages enabled)
+### 1. Clone repository
 
-
-Configuring the app is covered in detail in the [getting started guide](https://discord.com/developers/docs/getting-started).
-
-### Setup project
-
-First clone the project:
-```
-git clone https://github.com/discord/discord-example-app.git
+```bash
+git clone <repo-url>
+cd VietProDev-Discord-Bot
 ```
 
-Then navigate to its directory and install dependencies:
-```
-cd discord-example-app
+### 2. Cài đặt dependencies
+
+```bash
 npm install
 ```
-### Get app credentials
 
-Fetch the credentials from your app's settings and add them to a `.env` file (see `.env.sample` for an example). You'll need your app ID (`APP_ID`), bot token (`DISCORD_TOKEN`), and public key (`PUBLIC_KEY`).
+### 3. Cấu hình môi trường
+
+Copy file `.env.example` thành `.env`:
+
+```bash
+cp .env.example .env
+```
+
+Sau đó điền thông tin vào `.env`:
+
+```env
+DISCORD_TOKEN=your_bot_token_here
+APP_ID=your_application_id_here
+MONGO_URI=mongodb://localhost:27017/vietprodev-bot
+WELCOME_CHANNEL_ID=123456789
+```
+
+### 4. Bật Privileged Gateway Intents
+
+Vào **Discord Developer Portal** → Bot → **Privileged Gateway Intents**:
+- ✅ `PRESENCE INTENT`
+- ✅ `SERVER MEMBERS INTENT`
+- ✅ `MESSAGE CONTENT INTENT`
+
+### 5. Chạy bot
+
+**Development mode:**
+```bash
+npm run dev
+```
+
+**Production mode:**
+```bash
+npm start
+```
+
+## 📦 Dependencies
+
+- **discord.js v14** - Discord API wrapper
+- **mongoose** - MongoDB ODM
+- **dotenv** - Quản lý biến môi trường
+- **chalk** - Logger với màu sắc terminal
+
+## 🎯 Sử dụng
+
+### Slash Commands
+Tất cả lệnh đều dùng `/` prefix:
+
+```
+/ping
+/help
+/rps
+/ansang
+/weather Biên Hòa
+```
+
+### Legacy Text Commands (Hỗ trợ backward compatibility)
+```
+!temp
+!ansang
+!antrua
+!uonggi
+```
+
+## 🔧 Phát triển thêm
+
+### Thêm Command mới
+
+1. Tạo file trong `src/commands/<category>/<name>.js`:
+
+```js
+const { SlashCommandBuilder } = require('discord.js');
+
+module.exports = {
+    data: new SlashCommandBuilder()
+        .setName('mycommand')
+        .setDescription('Mô tả'),
+    
+    async execute(interaction, client) {
+        await interaction.reply('Hello!');
+    }
+};
+```
+
+2. Bot sẽ tự động load khi restart!
+
+### Thêm Event mới
+
+Tạo file trong `src/events/<category>/<eventName>.js`:
+
+```js
+module.exports = {
+    name: 'messageDelete',
+    async execute(message, client) {
+        console.log('Tin nhắn bị xóa');
+    }
+};
+```
+
+### Thêm Button/Select Menu/Modal
+
+Tạo file trong `src/components/<type>/<id>.js`:
+
+```js
+module.exports = {
+    id: 'my_button',
+    async execute(interaction, client) {
+        await interaction.reply('Button clicked!');
+    }
+};
+```
+
+## 📝 Ghi chú
+
+- Bot sử dụng **CommonJS** (`require`) thay vì ES6 modules
+- MongoDB là **optional** - nếu không có `MONGO_URI` bot vẫn chạy bình thường (không lưu stats)
+- Tất cả handlers đều **auto-load** files đệ quy
+- Slash commands tự động đăng ký khi bot `ready`
+
+## 🆘 Xử lý lỗi
+
+### Lỗi: "Missing Access"
+- Kiểm tra bot có quyền `Send Messages`, `Embed Links` trong channel
+
+### Lỗi: "Unknown interaction"
+- Slash commands có thể mất 1-5 phút để đồng bộ toàn cầu
+- Xóa cache Discord (Ctrl+R) hoặc đợi
+
+### Lỗi kết nối MongoDB
+- Kiểm tra MongoDB đã chạy: `mongod`
+- Hoặc comment dòng `MONGO_URI` trong `.env` để chạy không cần DB
+
+## 📄 License
+
+MIT © VietProDev
+
+---
+
+**Made with ❤️ by VietProDev Team**
+
 
 Fetching credentials is covered in detail in the [getting started guide](https://discord.com/developers/docs/getting-started).
 
