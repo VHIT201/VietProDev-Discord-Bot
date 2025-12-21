@@ -9,6 +9,9 @@ const path = require('path');
 function loadFiles(dir) {
     const files = [];
     
+    // If directory doesn't exist, return empty list (prevents ENOENT)
+    if (!fs.existsSync(dir)) return files;
+
     const items = fs.readdirSync(dir, { withFileTypes: true });
     
     for (const item of items) {

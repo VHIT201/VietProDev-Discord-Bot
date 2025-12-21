@@ -233,12 +233,35 @@ The commands for the example app are set up in `commands.js`. All of the command
 npm run register
 ```
 
+If you want commands to appear instantly for testing, set `GUILD_ID` in your `.env` to the server (guild) ID and then run `npm run register` — that will register commands for that guild only (instant). If `GUILD_ID` is not set, commands are registered globally (can take up to 1 hour to propagate).
+
+To register commands for a specific guild immediately:
+
+```powershell
+setx GUILD_ID "123456789012345678"
+# then run from project directory
+npm run register
+```
+
 ### Run the app
 
 After your credentials are added, go ahead and run the app:
 
+The repository provides two main entrypoints:
+
+- `welcome-bot.js` — bot process handling welcomes and message responders (this is now the `npm start` target)
+- `app.js` — web server handling interactions (slash commands endpoint)
+
+Run the welcome bot (default):
+
+```powershell
+npm start
 ```
-node app.js
+
+Run the interactions server (serves `/interactions` endpoint):
+
+```powershell
+npm run interactions
 ```
 
 > ⚙️ A package [like `nodemon`](https://github.com/remy/nodemon), which watches for local changes and restarts your app, may be helpful while locally developing.

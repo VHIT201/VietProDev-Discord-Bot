@@ -1,7 +1,6 @@
 import 'dotenv/config';
 import { Client, GatewayIntentBits } from 'discord.js';
 import { registerWelcomeHandler } from './bot/handlers/welcomeHandler.js';
-import { registerMessageHandlers } from './bot/handlers/messageHandler.js';
 
 const token = process.env.DISCORD_TOKEN;
 const channelId = process.env.WELCOME_CHANNEL_ID;
@@ -23,8 +22,7 @@ const client = new Client({
 
 client.once('ready', () => {
   console.log(`Welcome bot logged in as ${client.user.tag}`);
-  // register handlers after client is ready
-  registerMessageHandlers(client);
+  // register welcome handler after client is ready
   registerWelcomeHandler(client, channelId, messageTemplate);
 });
 

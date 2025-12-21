@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import { getRPSChoices } from './game.js';
-import { capitalize, InstallGlobalCommands } from './utils.js';
+import { capitalize, InstallCommands } from './utils.js';
 
 // Get the game choices from game.js
 function createCommandChoices() {
@@ -22,11 +22,8 @@ const TEST_COMMAND = {
   name: 'test',
   description: 'Basic command',
   type: 1,
-  integration_types: [0, 1],
-  contexts: [0, 1, 2],
 };
 
-// Command containing options
 const CHALLENGE_COMMAND = {
   name: 'challenge',
   description: 'Challenge to a match of rock paper scissors',
@@ -40,10 +37,39 @@ const CHALLENGE_COMMAND = {
     },
   ],
   type: 1,
-  integration_types: [0, 1],
-  contexts: [0, 2],
 };
 
-const ALL_COMMANDS = [TEST_COMMAND, CHALLENGE_COMMAND];
+const ANSANG_COMMAND = { name: 'ansang', description: 'Gợi ý món ăn sáng', type: 1 };
+const ANTRUA_COMMAND = { name: 'antrua', description: 'Gợi ý món ăn trưa', type: 1 };
+const UONGGI_COMMAND = { name: 'uonggi', description: 'Gợi ý đồ uống', type: 1 };
 
-InstallGlobalCommands(process.env.APP_ID, ALL_COMMANDS);
+const TEMP_COMMAND = {
+  name: 'temp',
+  description: 'Hiện nhiệt độ (mặc định Biên Hòa)',
+  options: [
+    {
+      type: 3,
+      name: 'city',
+      description: 'Tên thành phố (tuỳ chọn)',
+      required: false,
+      // allow autocomplete
+      autocomplete: true,
+    },
+  ],
+  type: 1,
+};
+
+const MYNAME_COMMAND = { name: 'myname', description: 'Hiển thị tên người gọi', type: 1 };
+
+const ALL_COMMANDS = [
+  TEST_COMMAND,
+  CHALLENGE_COMMAND,
+  ANSANG_COMMAND,
+  ANTRUA_COMMAND,
+  UONGGI_COMMAND,
+  TEMP_COMMAND,
+  MYNAME_COMMAND,
+];
+
+// Use guild registration if GUILD_ID present (instant), otherwise register global commands
+InstallCommands(process.env.APP_ID, ALL_COMMANDS, process.env.GUILD_ID);

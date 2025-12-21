@@ -1,6 +1,7 @@
 const { loadFiles } = require('../utils/fileLoader');
 const Logger = require('../utils/logger');
 const path = require('path');
+const fs = require('fs');
 
 /**
  * Handler tự động load Events
