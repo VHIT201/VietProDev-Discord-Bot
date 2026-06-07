@@ -15,7 +15,8 @@ module.exports = {
     channels: {
         welcome: process.env.WELCOME_CHANNEL_ID || '',
         logs: process.env.LOG_CHANNEL_ID || '',
-        general: process.env.GENERAL_CHANNEL_ID || ''
+        general: process.env.GENERAL_CHANNEL_ID || '',
+        tmsCheckin: process.env.TMS_CHECKIN_CHANNEL_ID || ''
     },
     
     roles: {
@@ -41,7 +42,7 @@ module.exports = {
     
     // Các thông điệp mặc định
     messages: {
-        welcome: 'Chào mừng {user} đến với **VietProDev**! 🎉\nHãy đọc quy định và tận hưởng!',
+        welcome: 'Chào mừng {user} đến với ****! 🎉\nHãy đọc quy định và tận hưởng!',
         noPermission: 'Bạn không có quyền sử dụng lệnh này!',
         cooldown: 'Vui lòng đợi {time} giây trước khi dùng lại lệnh này.'
     }

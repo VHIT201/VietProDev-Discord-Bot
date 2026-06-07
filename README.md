@@ -1,6 +1,6 @@
-# VietProDev Discord Bot - Enterprise Edition 🚀
+#  Discord Bot - Enterprise Edition 🚀
 
-Bot Discord chuyên nghiệp cho quản lý công ty VietProDev, được xây dựng với kiến trúc Monolithic Handler chuẩn Enterprise.
+Bot Discord chuyên nghiệp cho quản lý công ty , được xây dựng với kiến trúc Monolithic Handler chuẩn Enterprise.
 
 ## ✨ Tính năng
 
@@ -27,7 +27,7 @@ Bot Discord chuyên nghiệp cho quản lý công ty VietProDev, được xây d
 ## 📂 Cấu trúc dự án
 
 ```
-vietprodev-bot/
+discord-bot/
 ├── src/
 │   ├── index.js              # Entry point
 │   ├── configs/
@@ -71,7 +71,7 @@ vietprodev-bot/
 
 ```bash
 git clone <repo-url>
-cd VietProDev-Discord-Bot
+cd -Discord-Bot
 ```
 
 ### 2. Cài đặt dependencies
@@ -93,7 +93,7 @@ Sau đó điền thông tin vào `.env`:
 ```env
 DISCORD_TOKEN=your_bot_token_here
 APP_ID=your_application_id_here
-MONGO_URI=mongodb://localhost:27017/vietprodev-bot
+MONGO_URI=mongodb://localhost:27017/-bot
 WELCOME_CHANNEL_ID=123456789
 ```
 
@@ -214,11 +214,11 @@ module.exports = {
 
 ## 📄 License
 
-MIT © VietProDev
+MIT © 
 
 ---
 
-**Made with ❤️ by VietProDev Team**
+**Made with ❤️ by  Team**
 
 
 Fetching credentials is covered in detail in the [getting started guide](https://discord.com/developers/docs/getting-started).

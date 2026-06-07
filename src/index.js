@@ -11,19 +11,24 @@ const { Client, GatewayIntentBits, Collection } = require('discord.js');
 const { connect } = require('mongoose');
 const fs = require('fs');
 const path = require('path');
+const cron = require('node-cron');
+const {
+    createMorningReminder,
+    createWaterReminder,
+    createLunchReminder,
+    createEveningReminder
+} = require('./services/reminderService');
 
-// 1. Khởi tạo Client với quyền hạn đầy đủ cho quản lý công ty
+// 1. Khởi tạo Client
 const client = new Client({
     intents: [
         GatewayIntentBits.Guilds,
-        GatewayIntentBits.GuildMembers, // Cần thiết để đón member mới (Welcome)
         GatewayIntentBits.GuildMessages,
-        GatewayIntentBits.MessageContent, // Cần thiết để đọc nội dung chat
-        GatewayIntentBits.GuildPresences, // Xem trạng thái online/offline nhân viên
+        GatewayIntentBits.MessageContent,
     ]
 });
 
-// 2. Tạo Collection để lưu lệnh
+// 2. Tạo Collection
 client.commands = new Collection();
 client.buttons = new Collection();
 client.selectMenus = new Collection();
@@ -37,8 +42,6 @@ for (const file of handlers) {
     require(`./handlers/${file}`)(client);
 }
 
-
-
 // 4. Kết nối DB và Login
 (async () => {
     try {
@@ -50,14 +53,44 @@ for (const file of handlers) {
         
         // Login Discord
         await client.login(process.env.DISCORD_TOKEN);
-        
-        // Debug: Check messageCreate listeners after login
+
         client.once('ready', () => {
-            const messageListeners = client.listeners('messageCreate');
-            console.log(`🔍 DEBUG: ${messageListeners.length} messageCreate listener(s) registered`);
-            if (messageListeners.length > 1) {
-                console.warn('⚠️ WARNING: Multiple messageCreate listeners detected!');
-            }
+            const sendReminder = async (reminderFn, timeStr) => {
+                try {
+                    const channel = client.channels.cache.get(process.env.GENERAL_CHANNEL_ID);
+                    if (!channel) {
+                        console.warn(`⚠️ Không tìm thấy channel để gửi nhắc nhở ${timeStr}`);
+                        return;
+                    }
+                    const { embed, content } = reminderFn();
+                    await channel.send({ content, embeds: [embed] });
+                    console.log(`✅ Đã gửi nhắc nhở ${timeStr}`);
+                } catch (error) {
+                    console.error(`❌ Lỗi gửi nhắc nhở ${timeStr}:`, error);
+                }
+            };
+
+            // 7:00 sáng - Chào buổi sáng
+            cron.schedule('0 7 * * *', () => sendReminder(createMorningReminder, '7:00 sáng'), {
+                timezone: 'Asia/Ho_Chi_Minh'
+            });
+
+            // 9:00 - Nhắc uống nước
+            cron.schedule('0 9 * * *', () => sendReminder(createWaterReminder, '9:00'), {
+                timezone: 'Asia/Ho_Chi_Minh'
+            });
+
+            // 11:30 - Chúc ăn trưa
+            cron.schedule('30 11 * * *', () => sendReminder(createLunchReminder, '11:30'), {
+                timezone: 'Asia/Ho_Chi_Minh'
+            });
+
+            // 17:00 - Chúc về cẩn thận
+            cron.schedule('0 17 * * *', () => sendReminder(createEveningReminder, '17:00'), {
+                timezone: 'Asia/Ho_Chi_Minh'
+            });
+
+            console.log('✅ Đã đăng ký 4 cron job nhắc nhở (7:00, 9:00, 11:30, 17:00)');
         });
     } catch (error) {
         console.error('❌ Lỗi khởi động:', error);

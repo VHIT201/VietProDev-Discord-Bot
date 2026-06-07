@@ -9,7 +9,7 @@ module.exports = {
         
         // Set bot activity
         client.user.setPresence({
-            activities: [{ name: 'VietProDev Company', type: 3 }], // Type 3 = Watching
+            activities: [{ name: 'Đại K Biên Hòa', type: 3 }], // Type 3 = Watching
             status: 'online'
         });
     }

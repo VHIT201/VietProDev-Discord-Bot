@@ -1,8 +1,8 @@
 {
-  "name": "vietprodev-discord-bot",
+  "name": "dai-k- bien-hoa-discord-bot",
   "private": true,
   "version": "2.0.0",
-  "description": "VietProDev Company Discord Bot - Enterprise Edition",
+  "description": "Đại K Biên Hòa Discord Bot - Enterprise Edition",
   "main": "src/index.js",
   "engines": {
     "node": ">=18.x"
@@ -13,15 +13,16 @@
     "legacy:interactions": "node app.js",
     "legacy:welcome": "node welcome-bot.js"
   },
-  "author": "VietProDev",
+  "author": "Văn Hoàng",
   "license": "MIT",
   "dependencies": {
+    "@napi-rs/canvas": "^0.1.53",
     "axios": "^1.13.2",
-    "canvas": "^3.2.0",
     "chalk": "^4.1.2",
     "discord.js": "^14.14.1",
     "dotenv": "^16.0.3",
     "mongoose": "^8.0.0",
+    "node-cron": "^3.0.3",
     "web-streams-polyfill": "^4.0.0"
   },
   "devDependencies": {
