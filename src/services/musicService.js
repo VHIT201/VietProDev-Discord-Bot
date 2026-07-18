@@ -9,9 +9,11 @@ function createKazagumo(client) {
     const nodes = [
         {
             name: 'Lavalink',
-            url: `${process.env.LAVALINK_HOST || 'localhost'}:${process.env.LAVALINK_PORT || 2333}`,
+            url: '127.0.0.1:2333',
             auth: process.env.LAVALINK_PASSWORD || 'youshallnotpass',
-            secure: process.env.LAVALINK_SECURE === 'true',
+            secure: false,
+            retryAmount: 10,
+            retryDelay: 5000,
         }
     ];
 
