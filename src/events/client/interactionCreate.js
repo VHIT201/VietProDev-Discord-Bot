@@ -18,15 +18,14 @@ module.exports = {
             } catch (error) {
                 Logger.error(`Lỗi thực thi command ${interaction.commandName}`, error);
                 
-                const errorMessage = {
-                    content: '❌ Đã có lỗi xảy ra khi thực thi lệnh này!',
-                    ephemeral: true
-                };
-                
-                if (interaction.replied || interaction.deferred) {
-                    await interaction.followUp(errorMessage);
-                } else {
-                    await interaction.reply(errorMessage);
+                try {
+                    if (interaction.replied || interaction.deferred) {
+                        await interaction.followUp({ content: '❌ Đã có lỗi xảy ra khi thực thi lệnh này!', flags: 64 });
+                    } else {
+                        await interaction.reply({ content: '❌ Đã có lỗi xảy ra khi thực thi lệnh này!', flags: 64 });
+                    }
+                } catch (e) {
+                    // Interaction đã hết hạn hoặc đã được acknowledge, bỏ qua
                 }
             }
         }

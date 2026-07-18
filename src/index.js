@@ -48,7 +48,21 @@ for (const file of handlers) {
     require(`./handlers/${file}`)(client);
 }
 
-// 4. Kết nối DB và Login
+// 4. Khởi tạo Kazagumo (trước login để Shoukaku nhận được clientReady event)
+if (process.env.LAVALINK_HOST || process.env.LAVALINK_PORT) {
+    try {
+        createKazagumo(client);
+        Logger.info('Đang kết nối Lavalink...');
+        // discord.js v14 emit "ready", Shoukaku 4.x expect "clientReady" (v15)
+        client.once('ready', () => client.emit('clientReady'));
+    } catch (err) {
+        Logger.error('Không thể khởi tạo Kazagumo:', err);
+    }
+} else {
+    Logger.warn('Không có cấu hình Lavalink, tính năng nhạc sẽ không khả dụng');
+}
+
+// 5. Kết nối DB và Login
 (async () => {
     try {
         // Kết nối MongoDB (nếu có biến môi trường)
@@ -61,18 +75,6 @@ for (const file of handlers) {
         await client.login(process.env.DISCORD_TOKEN);
 
         client.once('ready', () => {
-            // Khởi tạo Kazagumo (Lavalink client) nếu có cấu hình
-            if (process.env.LAVALINK_HOST || process.env.LAVALINK_PORT) {
-                try {
-                    createKazagumo(client);
-                    Logger.info('Đang kết nối Lavalink...');
-                } catch (err) {
-                    Logger.error('Không thể khởi tạo Kazagumo:', err);
-                }
-            } else {
-                Logger.warn('Không có cấu hình Lavalink, tính năng nhạc sẽ không khả dụng');
-            }
-
             const sendReminder = async (reminderFn, timeStr) => {
                 try {
                     const channel = client.channels.cache.get(process.env.GENERAL_CHANNEL_ID);

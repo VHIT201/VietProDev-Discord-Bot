@@ -6,7 +6,7 @@ lavalink:
   server:
     password: "youshallnotpass"
     sources:
-      youtube: true
+      youtube: false
       bandcamp: true
       soundcloud: true
       twitch: true
@@ -32,40 +32,17 @@ lavalink:
     gc-warnings: true
 
 plugins:
-  # YouTube Source plugin (bypass age-restriction, etc.)
-  - dependency: "com.github.lavalink-devs.youtube-source:v2.0.0"
-    repository: "https://jitpack.io"
-  # LavaSrc plugin (Spotify, Apple Music, Deezer)
-  - dependency: "com.github.topi314.lavasrc:lavasrc-plugin:4.2.0"
-    repository: "https://github.com/topi314/LavaSrc/releases/download/v4.2.0"
+  - dependency: "dev.lavalink.youtube:youtube-plugin:1.18.1"
+    snapshot: false
 
-lavasrc:
-  sources:
-    spotify: false
-    applemusic: false
-    deezer: false
-    yandexmusic: false
-    flowerytts: false
-    youtube: false
-
-# Bật Spotify (cần Spotify Client ID + Secret từ https://developer.spotify.com/dashboard)
-spotify:
-  clientId: "your_spotify_client_id"
-  clientSecret: "your_spotify_client_secret"
-  countryCode: "VN"
-  playlistLoadLimit: 6
-  albumLoadLimit: 6
-
-# Bật Apple Music (cần Apple Music API key)
-applemusic:
-  countryCode: "US"
-  mediaAPIToken: "your_apple_music_token"
-  playlistLoadLimit: 6
-  albumLoadLimit: 6
-
-# Bật Deezer (cần Deezer arl cookie)
-deezer:
-  arl: "your_deezer_arl_cookie"
+youtube:
+  allowSearch: true
+  allowDirectVideoIds: true
+  allowDirectPlaylistIds: true
+  clients:
+    - MUSIC
+    - ANDROID_VR
+    - WEB
 
 metrics:
   prometheus:

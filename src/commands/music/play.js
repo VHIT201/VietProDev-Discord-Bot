@@ -31,19 +31,34 @@ module.exports = {
 
         let player = kazagumo.getPlayer(interaction.guild.id);
 
-        if (!player) {
-            player = await kazagumo.createPlayer({
-                guildId: interaction.guild.id,
-                voiceChannelId: voiceChannel.id,
-                textChannelId: interaction.channel.id,
-                selfDeaf: true,
-            });
-        } else if (player.voiceChannelId !== voiceChannel.id) {
-            return interaction.editReply({ content: '❌ Bạn cần ở cùng voice channel với bot!', ephemeral: true });
+        try {
+            if (!player) {
+                Logger.info(`Tạo player mới: guild=${interaction.guild.id}, voice=${voiceChannel.id}, text=${interaction.channel.id}`);
+                
+                const createPromise = kazagumo.createPlayer({
+                    guildId: interaction.guild.id,
+                    voiceId: voiceChannel.id,
+                    textId: interaction.channel.id,
+                    deaf: false,
+                });
+                
+                const timeoutPromise = new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error('Timeout tạo player sau 30s')), 30000)
+                );
+                
+                player = await Promise.race([createPromise, timeoutPromise]);
+                Logger.info(`Player tạo thành công: ${player.guildId}`);
+            } else if (player.voiceId !== voiceChannel.id) {
+                return interaction.editReply({ content: '❌ Bạn cần ở cùng voice channel với bot!', ephemeral: true });
+            }
+        } catch (connError) {
+            Logger.error('Lỗi kết nối voice:', connError);
+            return interaction.editReply({ content: `❌ Không thể kết nối voice channel: ${connError.message}` });
         }
 
         try {
             const result = await player.search(query, { requester: interaction.user });
+            Logger.info(`Search result: ${result?.tracks?.length || 0} tracks, type: ${result?.type}`);
 
             if (!result || result.tracks.length === 0) {
                 return interaction.editReply({ content: `❌ Không tìm thấy kết quả cho: **${query}**` });
@@ -82,7 +97,9 @@ module.exports = {
             }
 
             if (!player.playing && !player.paused) {
+                Logger.info(`Bắt đầu phát: ${track.title}`);
                 await player.play();
+                Logger.info(`play() đã gọi xong`);
             }
         } catch (error) {
             Logger.error('Lỗi khi search/play:', error);
