@@ -37,17 +37,24 @@ module.exports = (client) => {
     // Đăng ký commands lên Discord API khi bot ready
     client.once('ready', async () => {
         const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN);
-        
+        const guildId = process.env.GUILD_ID;
+
         try {
-            Logger.info('Bắt đầu đăng ký slash commands...');
-            
-            // Đăng ký Global Commands
-            await rest.put(
-                Routes.applicationCommands(client.user.id),
-                { body: commands }
-            );
-            
-            Logger.success(`Đã đăng ký ${commands.length} slash commands!`);
+            if (guildId) {
+                // Đăng ký Guild Commands (đồng bộ tức thì, dùng để test)
+                await rest.put(
+                    Routes.applicationGuildCommands(client.user.id, guildId),
+                    { body: commands }
+                );
+                Logger.success(`Đã đăng ký ${commands.length} guild commands (instant) cho guild ${guildId}`);
+            } else {
+                // Đăng ký Global Commands (mất tới 1 giờ để đồng bộ)
+                await rest.put(
+                    Routes.applicationCommands(client.user.id),
+                    { body: commands }
+                );
+                Logger.success(`Đã đăng ký ${commands.length} global commands (có thể mất tới 1 giờ để hiển thị)`);
+            }
         } catch (error) {
             Logger.error('Không thể đăng ký commands', error);
         }
