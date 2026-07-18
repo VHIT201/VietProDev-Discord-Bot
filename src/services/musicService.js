@@ -80,13 +80,46 @@ function createKazagumo(client) {
     const origSendServerUpdate = OrigPlayer.prototype.sendServerUpdate;
     OrigPlayer.prototype.sendServerUpdate = async function(connection) {
         Logger.info(`[PLAYER] sendServerUpdate guild=${this.guildId} endpoint=${connection.serverUpdate?.endpoint} sessionId=${connection.sessionId}`);
-        const restPromise = origSendServerUpdate.call(this, connection);
-        const timeoutPromise = new Promise((_, reject) =>
-            setTimeout(() => reject(new Error('sendServerUpdate timeout - Lavalink not responding')), 15000)
-        );
-        const result = await Promise.race([restPromise, timeoutPromise]);
-        Logger.info(`[PLAYER] sendServerUpdate resolved OK`);
-        return result;
+        try {
+            const result = await origSendServerUpdate.call(this, connection);
+            Logger.info(`[PLAYER] sendServerUpdate resolved OK`);
+            return result;
+        } catch (err) {
+            Logger.error(`[PLAYER] sendServerUpdate error: ${err.message}`);
+            throw err;
+        }
+    };
+
+    // Patch Rest.fetch to bypass AbortController bug on Node v24
+    const OrigRest = Shoukaku.Rest;
+    OrigRest.prototype.fetch = async function(fetchOptions) {
+        const { endpoint, options } = fetchOptions;
+        let headers = {
+            "Authorization": this.auth,
+            "User-Agent": this.node.manager.options.userAgent
+        };
+        if (options.headers) headers = { ...headers, ...options.headers };
+        const url = new URL(`${this.url}${endpoint}`);
+        if (options.params) url.search = new URLSearchParams(options.params).toString();
+        const method = options.method?.toUpperCase() ?? "GET";
+        const finalFetchOptions = { method, headers };
+        if (!["GET", "HEAD"].includes(method) && options.body) {
+            finalFetchOptions.body = JSON.stringify(options.body);
+        }
+        const timeoutMs = this.node.manager.options.restTimeout * 1000;
+        const result = await Promise.race([
+            fetch(url.toString(), finalFetchOptions),
+            new Promise((_, reject) => setTimeout(() => reject(new Error(`REST timeout after ${timeoutMs}ms: ${method} ${endpoint}`)), timeoutMs))
+        ]);
+        if (!result.ok) {
+            const response = await result.json().catch(() => null);
+            throw new Error(`REST error ${result.status}: ${JSON.stringify(response)}`);
+        }
+        try {
+            return await result.json();
+        } catch {
+            return;
+        }
     };
 
     kazagumo.shoukaku.on('ready', (name) => {
