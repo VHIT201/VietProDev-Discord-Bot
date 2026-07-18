@@ -75,6 +75,20 @@ function createKazagumo(client) {
         });
     };
 
+    // Patch Player.sendServerUpdate to add log and timeout
+    const OrigPlayer = Shoukaku.Player;
+    const origSendServerUpdate = OrigPlayer.prototype.sendServerUpdate;
+    OrigPlayer.prototype.sendServerUpdate = async function(connection) {
+        Logger.info(`[PLAYER] sendServerUpdate guild=${this.guildId} endpoint=${connection.serverUpdate?.endpoint} sessionId=${connection.sessionId}`);
+        const restPromise = origSendServerUpdate.call(this, connection);
+        const timeoutPromise = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('sendServerUpdate timeout - Lavalink not responding')), 15000)
+        );
+        const result = await Promise.race([restPromise, timeoutPromise]);
+        Logger.info(`[PLAYER] sendServerUpdate resolved OK`);
+        return result;
+    };
+
     kazagumo.shoukaku.on('ready', (name) => {
         Logger.success(`Lavalink node "${name}" đã kết nối`);
     });
