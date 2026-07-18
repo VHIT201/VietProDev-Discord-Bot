@@ -32,18 +32,6 @@ module.exports = {
                 '`/warn` - Cảnh báo thành viên',
                 '`/clear` - Xóa tin nhắn',
             ],
-            '🎵 Nhạc': [
-                '`/play` - Phát nhạc (YouTube, Spotify, SoundCloud, Apple Music, Deezer)',
-                '`/skip` - Bỏ qua bài hiện tại',
-                '`/stop` - Dừng phát và xóa hàng đợi',
-                '`/pause` - Tạm dừng',
-                '`/resume` - Tiếp tục phát',
-                '`/queue` - Xem hàng đợi',
-                '`/nowplaying` - Xem bài đang phát',
-                '`/volume` - Chỉnh âm lượng',
-                '`/shuffle` - Xáo trộn hàng đợi',
-                '`/remove` - Xóa bài khỏi hàng đợi',
-            ],
         };
 
         const embed = new EmbedBuilder()

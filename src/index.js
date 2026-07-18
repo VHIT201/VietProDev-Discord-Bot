@@ -1,12 +1,5 @@
 require('dotenv').config();
 
-// Ensure global ReadableStream (and related web stream globals) exist for undici
-try {
-    require('web-streams-polyfill/polyfill');
-    console.log('✅ Installed web-streams polyfill');
-} catch (e) {
-    // If polyfill not available, undici may throw a ReferenceError later
-}
 const { Client, GatewayIntentBits, Collection } = require('discord.js');
 const { connect } = require('mongoose');
 const fs = require('fs');
@@ -18,7 +11,6 @@ const {
     createLunchReminder,
     createEveningReminder
 } = require('./services/reminderService');
-const { createKazagumo } = require('./services/musicService');
 const Logger = require('./utils/logger');
 
 // 1. Khởi tạo Client
@@ -30,7 +22,6 @@ const client = new Client({
         GatewayIntentBits.GuildMembers,
         GatewayIntentBits.GuildPresences,
         GatewayIntentBits.GuildMessageReactions,
-        GatewayIntentBits.GuildVoiceStates,
     ]
 });
 
@@ -48,21 +39,7 @@ for (const file of handlers) {
     require(`./handlers/${file}`)(client);
 }
 
-// 4. Khởi tạo Kazagumo (trước login để Shoukaku nhận được clientReady event)
-if (process.env.LAVALINK_HOST || process.env.LAVALINK_PORT) {
-    try {
-        createKazagumo(client);
-        Logger.info('Đang kết nối Lavalink...');
-        // discord.js v14 emit "ready", Shoukaku 4.x expect "clientReady" (v15)
-        client.once('ready', () => client.emit('clientReady'));
-    } catch (err) {
-        Logger.error('Không thể khởi tạo Kazagumo:', err);
-    }
-} else {
-    Logger.warn('Không có cấu hình Lavalink, tính năng nhạc sẽ không khả dụng');
-}
-
-// 5. Kết nối DB và Login
+// 4. Kết nối DB và Login
 (async () => {
     try {
         // Kết nối MongoDB (nếu có biến môi trường)
