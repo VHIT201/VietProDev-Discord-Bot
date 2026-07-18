@@ -18,6 +18,8 @@ const {
     createLunchReminder,
     createEveningReminder
 } = require('./services/reminderService');
+const { createKazagumo } = require('./services/musicService');
+const Logger = require('./utils/logger');
 
 // 1. Khởi tạo Client
 const client = new Client({
@@ -28,6 +30,7 @@ const client = new Client({
         GatewayIntentBits.GuildMembers,
         GatewayIntentBits.GuildPresences,
         GatewayIntentBits.GuildMessageReactions,
+        GatewayIntentBits.GuildVoiceStates,
     ]
 });
 
@@ -58,6 +61,18 @@ for (const file of handlers) {
         await client.login(process.env.DISCORD_TOKEN);
 
         client.once('ready', () => {
+            // Khởi tạo Kazagumo (Lavalink client) nếu có cấu hình
+            if (process.env.LAVALINK_HOST || process.env.LAVALINK_PORT) {
+                try {
+                    createKazagumo(client);
+                    Logger.info('Đang kết nối Lavalink...');
+                } catch (err) {
+                    Logger.error('Không thể khởi tạo Kazagumo:', err);
+                }
+            } else {
+                Logger.warn('Không có cấu hình Lavalink, tính năng nhạc sẽ không khả dụng');
+            }
+
             const sendReminder = async (reminderFn, timeStr) => {
                 try {
                     const channel = client.channels.cache.get(process.env.GENERAL_CHANNEL_ID);
