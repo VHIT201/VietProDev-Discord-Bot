@@ -1,5 +1,6 @@
 const { Kazagumo, Plugins } = require('kazagumo');
-const { Connectors } = require('shoukaku');
+const Shoukaku = require('shoukaku');
+const { Connectors } = Shoukaku;
 const Logger = require('../utils/logger');
 
 let kazagumo = null;
@@ -32,6 +33,15 @@ function createKazagumo(client) {
         }
     );
 
+    // Debug: patch Shoukaku connector raw() to log all voice packets
+    const origRaw = Object.getPrototypeOf(kazagumo.shoukaku.connector).raw;
+    kazagumo.shoukaku.connector.constructor.prototype.raw = function(packet) {
+        if (packet?.t === 'VOICE_STATE_UPDATE' || packet?.t === 'VOICE_SERVER_UPDATE') {
+            Logger.info(`[CONNECTOR] raw ${packet.t} guild=${packet?.d?.guild_id} connections=${this.manager?.connections?.size} id=${this.manager?.id}`);
+        }
+        return origRaw.call(this, packet);
+    };
+
     // Debug: log raw voice packets
     client.on('raw', (packet) => {
         if (packet?.t === 'VOICE_STATE_UPDATE' || packet?.t === 'VOICE_SERVER_UPDATE') {
@@ -39,23 +49,30 @@ function createKazagumo(client) {
         }
     });
 
-    // Debug: patch Connection to log sendVoiceUpdate
-    const Shoukaku = require('shoukaku');
+    // Debug: patch Connection.connect() to bypass events.once + AbortController bug on Node v24
     const OrigConnection = Shoukaku.Connection;
-    const origSendVoiceUpdate = OrigConnection.prototype.sendVoiceUpdate;
-    OrigConnection.prototype.sendVoiceUpdate = function() {
-        Logger.info(`[VOICE] sendVoiceUpdate guild=${this.guildId} channel=${this.channelId} state=${this.state} sessionId=${this.sessionId}`);
-        return origSendVoiceUpdate.call(this);
-    };
-    const origSetServerUpdate = OrigConnection.prototype.setServerUpdate;
-    OrigConnection.prototype.setServerUpdate = function(data) {
-        Logger.info(`[VOICE] setServerUpdate guild=${this.guildId} endpoint=${data?.endpoint} sessionId=${this.sessionId}`);
-        return origSetServerUpdate.call(this, data);
-    };
-    const origSetStateUpdate = OrigConnection.prototype.setStateUpdate;
-    OrigConnection.prototype.setStateUpdate = function(data) {
-        Logger.info(`[VOICE] setStateUpdate guild=${this.guildId} session_id=${data?.session_id} channel_id=${data?.channel_id}`);
-        return origSetStateUpdate.call(this, data);
+    OrigConnection.prototype.connect = async function() {
+        if (this.state === 0 || this.state === 1) return;
+        this.state = 0; // CONNECTING
+        this.sendVoiceUpdate();
+        Logger.info(`[VOICE] connect() sending OP4, waiting for connectionUpdate...`);
+        return new Promise((resolve, reject) => {
+            const timeout = setTimeout(() => {
+                this.removeListener('connectionUpdate', handler);
+                reject(new Error(`Voice connection timeout after ${this.manager.options.voiceConnectionTimeout}s`));
+            }, this.manager.options.voiceConnectionTimeout * 1000);
+            const handler = (status) => {
+                clearTimeout(timeout);
+                if (status === 0) { // SESSION_READY
+                    this.state = 1; // CONNECTED
+                    Logger.info(`[VOICE] connect() resolved SESSION_READY`);
+                    resolve();
+                } else {
+                    reject(new Error(`Voice connection failed with status ${status}`));
+                }
+            };
+            this.once('connectionUpdate', handler);
+        });
     };
 
     kazagumo.shoukaku.on('ready', (name) => {
