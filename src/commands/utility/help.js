@@ -16,6 +16,7 @@ module.exports = {
                 '`/weather` - Xem thời tiết',
                 '`/datetime` - Xem ngày tháng & giờ',
                 '`/ask` - Hỏi AI',
+                '`/247` - Bot ở voice channel 24/7',
             ],
             '🎮 Vui vẻ': [
                 '`/poll` - Tạo bình chọn',
